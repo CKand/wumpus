@@ -17,12 +17,6 @@ RESULT_DEATH = 0
 RESULT_GIVE_UP = 1
 RESULT_WIN = 2
 
-class GameOver(Exception):
-	"""A class representing the event of the game ending."""
-	def __init__(self, result):
-		"""Result is one of the RESULT constants above."""
-		self.result = result
-
 
 # Utility functions
 def normalize(clause):
@@ -117,6 +111,7 @@ class KnowledgeBasedAgent:
 		self.direction = Direction("up")
 		self.holding = []
 		self.performance = 0
+		self.foundGold = False
 
 		# example of propositional logic
 		#self.KB.tell("B11 <=> (P12|P21)")
@@ -187,7 +182,10 @@ class KnowledgeBasedAgent:
 						#print "Adding " + str(n) + " to safe_spots"
 						safe_spots.add(n)
 
-		return safe_spots
+		#take intersection so that only neighbours are looked at
+		#honestly, i dont think we should be double looping ehre
+		neighbours = self.get_neighbors(self.location[0], self.location[1], self.size)
+		return safe_spots.intersection(neighbours)
 
 	def not_unsafe(self):
 		"""
@@ -214,8 +212,14 @@ class KnowledgeBasedAgent:
 					for n in self.get_neighbors(x, y, self.size):
 						#print "Adding " + str(n) + " to not_unsafe_spots"
 						not_unsafe_spots.add(n)
-
-		return not_unsafe_spots
+		neighbours = self.get_neighbors(self.location[0], self.location[1], self.size)
+		# print("i am look ing at neighbouts ")
+		# print(neighbours)
+		# print("this isthe intersection")
+		# print(not_unsafe_spots.intersection(neighbours))
+				#take intersection so that only neighbours are looked at
+		#honestly, i dont think we should be double looping ehre
+		return not_unsafe_spots.intersection(neighbours)
 
 	def unvisited(self):
 		"""
@@ -240,6 +244,8 @@ class KnowledgeBasedAgent:
 
 	def program(self,precept):
 		self.perceive(precept)
+		if (self.foundGold is True):
+			return
 		deltas = [(0,-1),(0,1),(-1,0),(1,0)]
 		"""Return the next location to explore in the search for gold."""
 		unvisited_locations = self.unvisited()
@@ -253,8 +259,9 @@ class KnowledgeBasedAgent:
 				location = min(not_unsafe_moves)
 				print('Taking a risk; moving to a not-unsafe location', location)
 			else:
+						#to enhance this, we should check when we are at a place where we can only go to
+						#previously visited neighbours, and go there 
 				print('Nowhere left to go')
-				raise GameOver(RESULT_GIVE_UP)
 		x1,y1 = self.location
 		x2,y2 = location
 		delta = (x2-x1, y2-y1)
@@ -345,7 +352,7 @@ class KnowledgeBasedAgent:
 			else:
 				self.KB.tell('~W%d_%d' % (self.location[0], self.location[1]))
 			if (str(perception) == "<Glitter>"):
-				print("You found the gold! you win!")
-				GameOver(2)
+				print("Something glitters in your eye!")
+				self.foundGold = True
 				return
 				#do soemthing to break
