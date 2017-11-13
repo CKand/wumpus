@@ -108,7 +108,7 @@ class KnowledgeBasedAgent:
 		self.size = 4
 		cave_size = 4
 		self.location = (1,1)
-		self.direction = Direction("up")
+		self.direction = Direction("down")
 		self.holding = []
 		self.performance = 0
 		self.foundGold = False
