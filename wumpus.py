@@ -53,15 +53,11 @@ agentTest = KnowledgeBasedAgent()
 #WumpusWorld(puzzle.get_world, [1,1],0, puzzle.percepts_from(puzzle.agents[0],(1,1)));#should just be puzzle.precept(agent) if had a valid agent right nwo 
 puzzle = WumpusWorld(agentTest, WumpusEnvironment(agentTest,4,4)); #where None should be agent
 
-print(puzzle.worldState.get_world())
-listper =puzzle.percept(agentTest)
-agent = Agent(agentTest.program)
-# print("here is the issue")
-# print(puzzle.percept(agentTest))
-#TraceAgent(agent);
-#print(agent)
-
-
-
 while not puzzle.worldState.is_done():
 	puzzle.worldState.execute_action(agentTest, agentTest.program(puzzle.percept(agentTest)))
+	if (puzzle.worldState.in_danger(agentTest) is True):
+		print("I die")
+		break
+	if (agentTest.foundGold is True):
+		print("All dat muns")
+		break
